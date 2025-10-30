@@ -1,0 +1,1476 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>GrowSoft Lua Docs — Full</title>
+  <meta name="description" content="Dokumentasi GrowSoft Lua Engine — callbacks, API, dialog syntax, player/world/item APIs. Interactive docs with search and copy." />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22><text y=%2216%22 font-size=%2216%22>📘</text></svg>">
+
+  <style>
+    /* Modern docs-style dark theme */
+    :root{
+      --bg:#0b1220;
+      --panel:#0f1724;
+      --muted:#9aa4b2;
+      --accent:#7c3aed;
+      --glass: rgba(255,255,255,0.02);
+      --surface:#0c1117;
+      --card-border: rgba(255,255,255,0.035);
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial;
+      background:
+        radial-gradient(600px 300px at 8% 8%, rgba(124,58,237,0.06), transparent 10%),
+        linear-gradient(180deg,#071025 0%, var(--bg) 100%);
+      color:#e6eef8;
+      -webkit-font-smoothing:antialiased;
+      line-height:1.55;
+    }
+
+    /* Layout */
+    .wrap{display:grid;grid-template-columns: 280px 1fr; gap:28px; max-width:1200px; margin:28px auto; padding:18px}
+    header{grid-column:1/-1; display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:6px}
+    .brand{display:flex;align-items:center;gap:12px}
+    .logo{width:44px;height:44px;border-radius:10px;background:linear-gradient(135deg,var(--accent),#06b6d4);display:flex;align-items:center;justify-content:center;font-weight:700;box-shadow:0 8px 30px rgba(124,58,237,0.12)}
+    h1{font-size:18px;margin:0}
+    .subtitle{color:var(--muted);font-size:13px}
+
+    /* Sidebar */
+    .sidebar{
+      background:linear-gradient(180deg, rgba(255,255,255,0.012), transparent);
+      border-radius:12px;padding:16px;border:1px solid var(--card-border);height:calc(100vh - 120px);position:sticky;top:20px;overflow:auto;
+      box-shadow: 0 10px 30px rgba(2,6,23,0.6);
+    }
+    .search{display:flex;gap:8px;margin-bottom:12px}
+    .search input{flex:1;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,0.04);background:transparent;color:inherit}
+    .toc{display:flex;flex-direction:column;gap:6px}
+    .toc button{background:transparent;border:none;color:var(--muted);text-align:left;padding:8px;border-radius:8px;cursor:pointer}
+    .toc button:hover{background:rgba(255,255,255,0.02);color:inherit}
+
+    /* Main content */
+    .main{
+      padding-right:6px;
+    }
+    .hero{
+      background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+      padding:16px;border-radius:12px;border:1px solid var(--card-border);
+      display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;
+    }
+    .hero .left{max-width:70%}
+    .hero .left h2{margin:0 0 6px 0}
+    .hero .left p{margin:0;color:var(--muted);font-size:13px}
+    .hero .cta{display:flex;gap:8px}
+    .btn{padding:9px 12px;border-radius:10px;border:none;cursor:pointer;font-weight:600}
+    .btn.ghost{background:transparent;border:1px solid rgba(255,255,255,0.04);color:inherit}
+    .btn.primary{background:linear-gradient(90deg,var(--accent),#06b6d4);color:white;box-shadow:0 10px 30px rgba(124,58,237,0.12)}
+
+    /* Section cards */
+    .section{
+      margin-bottom:12px;background:var(--panel);border-radius:10px;border:1px solid var(--card-border);overflow:hidden;
+      transition:all .18s ease;
+    }
+    .section .head{
+      display:flex;align-items:center;justify-content:space-between;padding:14px 16px;cursor:pointer;
+    }
+    .section .head h3{margin:0;font-size:15px}
+    .section .head .muted{color:var(--muted);font-size:13px}
+    .section .body{padding:12px 16px;border-top:1px solid rgba(255,255,255,0.02);display:none;animation:fadeIn .18s ease}
+    @keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+    /* code blocks */
+    pre{background:#071023;border-left:4px solid rgba(124,58,237,0.18);padding:12px;border-radius:8px;color:#cfe9ff;white-space:pre-wrap;word-break:break-word;position:relative}
+    .code-actions{position:absolute;top:8px;right:10px;display:flex;gap:8px}
+    .mini-btn{background:rgba(255,255,255,0.06);border:none;color:inherit;padding:6px 8px;border-radius:6px;font-size:12px;cursor:pointer}
+    .mini-btn:hover{background:rgba(255,255,255,0.09)}
+
+    /* copy entire section button */
+    .section-actions{display:flex;gap:8px;align-items:center}
+    .hint{color:var(--muted);font-size:13px;margin-bottom:10px}
+
+    /* responsive */
+    @media (max-width:980px){
+      .wrap{grid-template-columns:1fr; padding:12px; gap:14px}
+      .sidebar{height:auto;position:relative}
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="brand">
+        <div class="logo">GT</div>
+        <div>
+          <h1>GrowSoft Lua Docs</h1>
+          <div class="subtitle">Complete embedded docs — callbacks, APIs, dialog syntax. Tekan judul untuk menampilkan isi.</div>
+        </div>
+      </div>
+
+      <div class="hero-cta">
+        <div class="hero" style="width:520px;max-width:48vw">
+          <div class="left">
+            <h2>Interactive docs</h2>
+            <p>Tekan judul topik di sidebar atau klik header topik untuk buka. Setiap potongan kode dapat disalin dengan 1 klik.</p>
+          </div>
+          <div class="cta">
+            <button class="btn ghost" id="openAll">Open all</button>
+            <button class="btn primary" id="closeAll">Collapse all</button>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <aside class="sidebar" aria-label="Table of contents">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
+        <input id="searchInput" placeholder="Search topics / keywords..." />
+      </div>
+
+      <div class="hint">Klik nama topik untuk langsung scroll & buka.</div>
+      <div class="toc" id="toc"></div>
+      <hr style="opacity:.06;margin:12px 0">
+      <div style="display:flex;gap:8px">
+        <a class="btn ghost" href="#" id="downloadAll">Download HTML</a>
+        <a class="btn ghost" href="https://github.com" target="_blank" rel="noopener">GitHub</a>
+      </div>
+    </aside>
+
+    <main class="main" id="contentRoot">
+      <!-- Sections akan di-render lewat JS -->
+    </main>
+  </div>
+
+  <!-- raw docs text embedded in template for safe raw contents -->
+  <template id="rawDocs">
+onPlayerDialogCallback(world, player, data)
+Handles player interactions with dialogs. The `data` table contains `dialog_name` and `buttonClicked`.
+
+onPlayerConsumableCallback(world, player, tile, clickedPlayer, itemID)
+Triggered when a player uses a consumable item.
+
+onTileWrenchCallback(world, player, tile)
+Triggered when a player wrenches a tile.
+
+onPlayerWrenchCallback(world, player, wrenchingPlayer)
+Triggered when a player wrenches another player or NPC. You can check `wrenchingPlayer:getType()` to see if it's an NPC (e.g., type 25 for Lua-spawned NPCs).
+
+onPlayerLoginCallback(player)
+Triggered when a player logs into the server.
+
+onTilePlaceCallback(world, player, tile, placingID)
+Triggered when a player places a tile. Return `true` to prevent placement.
+
+onPlayerTick(player)
+Called every 1000ms for each online player.
+
+onWorldTick(world)
+Called every 100ms for each active world.
+
+onTick()
+Called every 100ms on the server globally.
+
+onPlayerFirstTimeLoginCallback(player)
+Triggered only on a player's very first login to the server.
+
+onPlayerEnterWorldCallback(world, player)
+Triggered when a player successfully enters a world.
+
+onPlayerLeaveWorldCallback(world, player)
+Triggered when a player leaves a world.
+
+onTilePunchCallback(world, avatar, tile)
+Triggered when a player punches a tile. Return `true` to prevent the default break action.
+
+onPlayerDisconnectCallback(player)
+Triggered when a player disconnects from the server.
+
+onPlayerDeathCallback(world, player, isRespawn)
+Triggered when a player dies or respawns. `isRespawn` is true if the player is respawning.
+
+onPlayerDropCallback(world, player, itemID, itemCount)
+Triggered when a player drops an item. Return `true` to prevent the drop.
+
+onPlayerLevelUPCallback(world, player, levelReached)
+Triggered when a player levels up.
+
+onPlayerEquipClothingCallback(world, player, itemID)
+Triggered when a player tries to equip an item. Return `true` to prevent equipping.
+
+onPlayerUnequipClothingCallback(world, player, itemID)
+Triggered when a player tries to unequip an item. Return `true` to prevent unequipping.
+
+onPlayerPickupItemCallback(world, player, itemID, itemCount)
+Triggered when a player picks up an item. Return `true` to prevent the pickup.
+
+onPlayerEnterDoorCallback(world, player, targetWorldName, doorID)
+Triggered when a player enters a door. Return `true` to prevent entry.
+
+onPlayerPlantCallback(world, player, tile)
+Triggered when a player plants a seed.
+
+onPlayerHarvestCallback(world, player, tile)
+Triggered when a player harvests a tree.
+
+onPlayerCatchFishCallback(world, player, itemID, itemCount)
+Triggered when a player catches a fish.
+
+onPlayerCrimeCallback(world, player, itemID, itemCount)
+Related to moderation actions or "crimes".
+
+onPlayerSurgeryCallback(world, player, itemID, itemCount)
+Triggered during a surgery action.
+
+onPlayerKillCallback(world, player, killedPlayer)
+Triggered when a player kills another player (e.g., in a PVP world). `killedPlayer` is the player object of the victim.
+
+onPlayerDropCallback(world, player, itemID, itemCount)
+Triggered when a player drops an item. Return `true` to prevent the drop.
+
+onPlayerProviderCallback(world, player, tile, itemID, itemCount)
+Triggered when a player receives items from a provider block.
+
+onPlayerHarmonicCallback(world, player, tile, itemID, itemCount)
+Related to harmonic crystals.
+
+onPlayerGeigerCallback(world, player, itemID, itemCount)
+Triggered when a player finds something with a Geiger counter.
+
+onPlayerCatchGhostCallback(world, player, itemID, itemCount)
+Triggered when a player catches a ghost.
+
+onPlayerXPCallback(world, player, amount)
+Triggered when a player gains experience points.
+
+onPlayerFirePutOutCallback(world, player, tile)
+Triggered when a player extinguishes a fire.
+
+onPlayerEarnGrowtokenCallback(world, player, itemCount)
+Triggered when a player earns a Growtoken.
+
+onPlayerTrainFishCallback(world, player)
+Called once a player has trained a fish.
+
+onPlayerGemsObtainedCallback(world, player, amount)
+Triggered when a player obtains gems through various actions.
+
+onTileBreakCallback(world, player, tile)
+A generic callback for when any tile is broken.
+
+onPlayerAddFriendCallback(world, player, addedPlayer)
+Triggered when a player adds another player as a friend.
+
+onPlayerTradeCallback(world, player1, player2, items1, items2)
+Triggered upon a successful trade. `items1` and `items2` are tables of traded items.
+
+onPlayerVariantCallback(player, variant, delay, netID)
+A low-level callback for handling various client packets (variants). Advanced use only.
+
+onPlayerRawPacketCallback(player, data)
+A very low-level callback for handling raw network packets from a player. Advanced use only.
+
+onPlayerEquippedClothingCallback(world, player, item_id)
+Called AFTER a player successfully equips an item.
+
+onPlayerUnequippedClothingCallback(world, player, item_id)
+Called AFTER a player successfully unequips an item.
+
+onPlayerTrashCallback(world, player, item_id, item_amount)
+Triggered when a player trashes an item. Return `true` to prevent trashing.
+
+onPlayerRecycleCallback(world, player, item_id, item_amount, gems_earned)
+Triggered when a player recycles an item. Return `true` to prevent recycling.
+
+onPlayerPunchPlayerCallback(world, player, second_player)
+Triggered when a player punches another player.
+
+onPlayerPunchNPCCallback(world, player, npc_player)
+Triggered when a player punches an NPC.
+
+onEventChangedCallback(newEventID, oldEventID)
+Triggered when the server-wide event changes.
+
+onPlayerActionCallback(world, player, data)
+A generic callback for various player actions, often from UI buttons. `data["action"]` contains the action name.
+
+onAutoSaveRequest()
+Triggered periodically by the server to request data saving. Use `saveDataToServer` here.
+
+onDiscordMessageCreateCallback(event)
+Triggered when a message is created in a linked Discord channel.
+
+onPlayerDNACallback(world, player, resultID, resultAmount)
+Triggered when a player uses a DNA Combiner.
+
+onWorldLoaded(world)
+Called once a world is loaded into memory.
+
+onWorldOffloaded(world)
+Called once a world is removed from memory.
+
+onPlayerBoostClaimCallback(player)
+Triggered when a player claims a boost.
+
+Commands
+registerLuaCommand(commandData)
+Registers a new custom slash command. `commandData` is a table: `{ command="name", roleRequired=0, description="desc" }`.
+
+onPlayerCommandCallback(world, player, fullCommand)
+Handles the execution of custom slash commands. Return `true` if you handle the command.
+
+Dialog Syntax
+set_default_color|color
+Sets the default dialog text color (e.g., `\`o`).
+
+set_border_color|r,g,b,a|
+Sets the dialog border color.
+
+set_bg_color|r,g,b,a|
+Sets the dialog background color.
+
+set_custom_spacing|x:value;y:value|
+Adds custom horizontal and vertical spacing between elements.
+
+add_custom_break|
+Adds a line break.
+
+start_custom_tabs|
+Starts a container for custom tabs.
+
+end_custom_tabs|
+Ends a container for custom tabs.
+
+disable_resize|
+Disables automatic dialog resizing.
+
+reset_placement_x|
+Resets horizontal placement.
+
+add_label|size|message|alignment
+Adds a text label (size: big/small, alignment: left/center/right).
+
+add_smalltext|message|
+Adds small text.
+
+add_textbox|message|
+Adds a text box with a message.
+
+add_button|name|label|flags|0|0
+Adds a standard button.
+
+add_small_font_button|name|label|flags|0|0
+Adds a button with a smaller font.
+
+add_text_input|name|message|defaultInput|length
+Adds a text input field.
+
+add_checkbox|name|message|checked
+Adds a checkbox. `checked` is 1 for true, 0 for false.
+
+add_item_picker|name|message|placeholder|
+Adds a searchable item picker.
+
+add_spacer|size|
+Adds a vertical spacer (size: big/small).
+
+add_quick_exit|
+Adds a quick exit "X" button to the dialog.
+
+embed_data|embed|data|
+Embeds data into the dialog, often used to set the `dialog_name`.
+
+add_label_with_icon|size|message|alignment|iconID
+Adds a label prefixed with an item icon.
+
+add_button_with_icon|name|text|options|itemID|...|
+A versatile button with an icon and various display options. See examples in text file.
+
+add_player_info|name|level|exp|expRequired
+Displays a player info block.
+
+add_progress_bar|name|size|text|current|max|color|
+Adds a progress bar.
+
+add_image_button|name|imagePath|flags|open|label|
+Adds a button with a custom image.
+
+add_tab_button|name|label|iconPath|x|y
+Adds a tab button.
+
+add_banner|imagePath|x|y|
+Adds a banner.
+
+add_big_banner|imagePath|x|y|text|
+Adds a larger banner with text.
+
+add_searchable_item_list|data|options|searchFixedName
+Adds a searchable list of items. Options e.g., `listType:iconGrid;resultLimit:12`.
+
+add_dual_layer_icon_label|size|message|alignment|iconID|bg|fg|size|toggle
+Adds a dual-layer icon label.
+
+add_seed_color_icons|itemID
+Adds seed color icons for a specific item.
+
+add_label_with_icon_button|size|message|alignment|iconID|buttonName
+Adds a label with an icon and a button.
+
+add_achieve_button|achName|achToGet|achID|unk
+Adds an achievement button.
+
+add_community_button|button|btnName|flags|0|0
+Adds a community button.
+
+add_friend_image_label_button|name|label|texture_path|size|texture_x|texture_y|
+Adds a button with a friend image.
+
+add_custom_button|name|option|
+Adds a custom button.
+
+add_custom_label|option1|option2|
+Adds a custom label with options.
+
+add_custom_spacer|x:value|
+Adds a custom spacer with a specified width.
+
+add_custom_textbox|text|size:value|
+Adds a custom textbox with a specified size.
+
+add_cmmnty_ft_wrld_bttn|worldName|ownerName|worldName|
+Adds a community feature world button.
+
+add_cmmnty_wotd_bttn|top|worldName|ownerName|imagePath|x|y|worldName|
+Adds a community WOTD button.
+
+community_hub_type|hubType|
+Sets the community hub type.
+
+enable_tabs|enable|
+Enables or disables tabs.
+
+Player
+player:getLevel()
+Returns the player's current level.
+
+player:addLevel(amount)
+Adds a specified number of levels to the player.
+
+player:removeLevel(amount)
+Removes a specified number of levels from the player.
+
+player:setLevel(level)
+Sets the player's level to a specific value.
+
+player:setXP(amount)
+Sets the player's total experience points.
+
+player:removeXP(amount)
+Removes a specific amount of experience points.
+
+player:getGems()
+Returns the player's gem count.
+
+player:addGems(amount, sendPacket, isDisplay)
+Adds a specified amount of gems to the player.
+
+player:removeGems(amount, sendPacket, isDisplay)
+Removes a specified amount of gems from the player.
+
+player:setGems(amount)
+Sets the player's gem count to an explicit value.
+
+player:getCoins()
+Returns the player's coin count.
+
+player:addCoins(amount, sendPacket)
+Adds coins to the player.
+
+player:removeCoins(amount, sendPacket)
+Removes coins from the player.
+
+player:setCoins(amount)
+Sets the player's coin count.
+
+player:getBankBalance()
+Returns the player's bank balance.
+
+player:addBankBalance(amount)
+Adds to the player's bank balance.
+
+player:removeBankBalance(amount)
+Removes from the player's bank balance.
+
+player:setBankBalance(amount)
+Sets the player's bank balance.
+
+player:ban(length_seconds, reason, banned_by_player, ban_device, ban_ip)
+Bans the player. `length_seconds = 0` for a permanent ban. `banned_by_player` is another player object (can be nil). `ban_device` and `ban_ip` are 0 (no) or 1 (yes).
+
+player:onConsoleMessage(message)
+Sends a message to the player's in-game console.
+
+player:onTalkBubble(netID, message, isApi)
+Displays a talk bubble above a player. Use `player:getNetID()` for self.
+
+player:onDialogRequest(dialogString)
+Sends a dialog to the player using the special dialog string syntax.
+
+player:getNetID()
+Returns the player's network ID.
+
+player:getUserID()
+Returns the player's unique user ID.
+
+player:playAudio(filePath, delay)
+Plays an audio file for the player (e.g., "audio/ding.wav").
+
+player:getItemAmount(itemID)
+Returns the amount of a specific item the player has in their inventory.
+
+player:changeItem(itemID, amount, isSendPacket)
+Adds (`amount` > 0) or removes (`amount` < 0) an item from the player's inventory.
+
+player:enterWorld(worldName, doorID)
+Teleports the player to a specified world.
+
+player:getWorldName()
+Returns the name of the world the player is currently in.
+
+player:onTextOverlay(text)
+Displays a large text overlay on the player's screen.
+
+player:getCleanName()
+Returns the player's name without any special formatting.
+
+player:hasRole(role)
+Checks if the player has a specific role ID. (e.g., `Roles.ROLE_ADMIN`).
+
+player:setRole(role)
+Sets the player's role ID.
+
+player:getMod(playModID)
+Returns the player's mod.
+
+player:addMod(modID, durationSeconds)
+Adds a temporary modification (e.g., curse, buff) to the player.
+
+player:removeMod(modID)
+Removes a modification from the player.
+
+player:getCountry()
+Returns the player's country code (e.g., "us").
+
+player:setCountry(countryCode)
+Changes the country flag of a player. Example: `player:setCountry("us")`.
+
+player:getPlatform()
+Returns the player's platform ID (0: Win, 1: iOS, 2: macOS, 4: Android).
+
+player:sendVariant(variantTable, delay, netID)
+Sends a raw variant packet to the player. Examples: `{"OnTalkBubble", netID, "Msg"}`, `{"OnConsoleMessage", "Msg"}`, `{"OnCountdownStart", 60, -1}`. Advanced use.
+
+player:sendAction(actionString)
+Sends a default Growtopia action string (e.g., for sound effects like `action|play_sfx...`).
+
+player:getInventoryItems()
+Returns a table of all items in the player's inventory. Iterate through it to access individual items.
+
+player:getWorld()
+Returns the world object the player is currently in.
+
+player:disconnect()
+Disconnects the player from the server.
+
+player:hasTitle(id)
+Checks if the player has unlocked a specific title.
+
+player:addTitle(id)
+Adds a title to the player.
+
+player:removeTitle(id)
+Removes a title from the player.
+
+player:isOnline()
+Checks if the player object corresponds to an online player.
+
+player:getType()
+Returns the player's type. Non-zero means it is an NPC. Lua-spawned NPCs will have a type of 25.
+
+player:isFacingLeft()
+Returns `true` if the player is facing left.
+
+player:addMail(mailDataTable)
+Adds a new mail to the player's mailbox.
+
+player:clearMailbox()
+Clears all mail from the player's mailbox.
+
+player:setNickname(name)
+Sets the player's display name.
+
+player:resetNickname()
+Resets the player's display name to their original name.
+
+player:onClothesUI(targetPlayer)
+Shows the clothing UI of a target player.
+
+player:onAchievementsUI(targetPlayer)
+Shows the achievements UI for a target player.
+
+player:onTitlesUI(targetPlayer)
+Shows the titles UI for a target player.
+
+player:onTradeScanUI()
+Shows the trade scan UI.
+
+player:onGrow4GoodUI()
+Shows the Grow4Good UI.
+
+player:onRedeemMenu()
+Sends a redeem menu to the player.
+
+player:getClothingItemID(slot)
+Gets the item ID of clothing in a specific slot (e.g., `PlayerClothes.HAND`).
+
+player:getUnlockedAchievementsCount()
+Returns the number of achievements the player has unlocked.
+
+player:getAchievementsCount()
+Returns the total number of available achievements.
+
+player:getBackpackUsedSize()
+Returns the number of used slots in the backpack.
+
+player:setNextDialogRGBA(r, g, b, a)
+Sets the background color of the next dialog.
+
+player:setNextDialogBorderRGBA(r, g, b, a)
+Sets the border color of the next dialog.
+
+player:resetDialogColor()
+Resets dialog colors to default. Must be called after using custom colors.
+
+player:setCountryFlagForeground(item_id)
+Sets the player's country flag foreground item. Use 0 to remove.
+
+player:getCountryFlagForeground()
+Returns the item ID of the player's country flag foreground.
+
+player:setCountryFlagBackground(item_id)
+Sets the player's country flag background item. Use 0 to remove.
+
+player:getCountryFlagBackground()
+Returns the item ID of the player's country flag background.
+
+player:getInventorySize()
+Returns the player's inventory size.
+
+player:isMaxInventorySpace()
+Returns true if the player's inventory is full.
+
+player:upgradeInventorySpace(amount)
+Upgrades the player's inventory space.
+
+player:onStorePurchaseResult()
+Sends a store purchase result to the player.
+
+player:onGrow4GoodDonate()
+Fires Grow4GoodDonate Event.
+
+player:getSubscription(subscription)
+Returns the player's specified subscription status.
+
+player:getHomeWorldID()
+Returns Player's Home World ID.
+
+player:getOnlineStatus()
+Returns The Online Status.
+
+player:getGuildID()
+Returns the Guild ID.
+
+player:getTransformProfileButtons()
+Returns Player's TransformProfile Buttons.
+
+player:getDiscordID()
+Returns the Player's Discord ID.
+
+player:getAccountCreationDateStr()
+Returns the Account Creation Date.
+
+player:getClassicProfileContent(cat, flags)
+Returns the ClassicProfile Content.
+
+player:onGuildNotebookUI()
+Returns The GuildNotebook UI.
+
+player:onGrowmojiUI()
+Shows the Growmoji UI.
+
+player:onGrowpassUI()
+Shows the Growpass UI.
+
+player:onNotebookUI()
+Shows the Notebook UI.
+
+player:onBillboardUI()
+Shows the Billboard UI.
+
+player:onPersonalizeWrenchUI()
+Shows the Personalize Wrench UI.
+
+player:onOnlineStatusUI()
+Returns The Online Status UI.
+
+player:onFavItemsUI()
+Shows the Favorite Items UI.
+
+player:onCoinsBankUI()
+Shows the Coins Bank UI.
+
+player:onUnlinkDiscordUI()
+Shows the Unlink Discord UI.
+
+player:onLinkDiscordUI()
+Shows the Link Discord UI.
+
+player:onWrenchIconsUI(targetPlayer)
+Shows the Wrench Icons UI for a target player.
+
+player:onNameIconsUI(targetPlayer)
+Shows the Name Icons UI for a target player.
+
+player:onVouchersUI()
+Shows the Vouchers UI.
+
+player:onMentorshipUI()
+Shows the Mentorship UI.
+
+player:onBackpackUI(targetPlayer)
+Shows the Backpack UI for a target player.
+
+player:setRoleQuestLevel(type, level)
+Sets the player's role quest level for a specific type (e.g., `PlayerRoleQuestTypes.Farmer`).
+
+player:getRoleQuestLevel(type)
+Gets the player's role quest level for a specific type.
+
+World
+world:getOwner()
+Returns the player object of the world's owner, if one exists.
+
+world:getName()
+Returns the world's name.
+
+world:useItemEffect(playerNetID, itemID, targetNetID, effectDelay)
+Triggers a visual item effect in the world.
+
+world:updateClothing(player)
+Forces a visual update of a player's clothing for everyone in the world.
+
+world:spawnGems(x, y, amount, player)
+Spawns gems at a specific tile coordinate.
+
+world:getVisiblePlayersCount()
+Returns the number of visible players in the world.
+
+world:getPlayersCount(includeInvisible)
+Returns the number of players in the world. Pass `1` to include invisible players.
+
+world:onCreateChatBubble(x, y, text, netID)
+Creates a chat bubble at a specific pixel coordinate.
+
+world:onCreateExplosion(x, y, radius, power)
+Creates an explosion at a specific pixel coordinate.
+
+world:addXP(player, amount)
+Adds XP to a player. Recommended over player:addXP for better management.
+
+world:setPlayerPosition(player, x, y)
+Teleports a player to a specific tile coordinate within the world.
+
+world:getDroppedItems()
+Returns a table of all dropped items in the world.
+
+world:getTileDroppedItems(tile)
+Returns a list of dropped items on a specific tile.
+
+world:removeDroppedItem(dropUID)
+Removes a dropped item by its unique ID.
+
+world:getTile(x, y)
+Returns the tile object at the specified coordinates.
+
+world:setTileForeground(tile, itemID, isVisual, player)
+Sets the foreground of a tile. If `isVisual` is true, it's a temporary visual change, optionally for a single player.
+
+world:setTileBackground(tile, itemID, isVisual, player)
+Sets the background of a tile. If `isVisual` is true, it's a temporary visual change, optionally for a single player.
+
+world:kill(player)
+Kills a player in the world.
+
+world:hasAccess(player)
+Checks if a player has build access to the entire world (e.g., via world lock).
+
+world:hasTileAccess(player, tile)
+Checks if a player has build access to a specific tile (e.g., via small lock).
+
+world:punchTile(tile)
+Simulates a punch on a tile, triggering its break logic.
+
+world:updateTile(tile)
+Forces a visual update for a tile, necessary after using `tile:setTileData`.
+
+world:getPlayers()
+Returns a table of all player objects currently in the world.
+
+world:setClothing(player, item_id)
+Force-equips an item onto a player.
+
+world:adjustGems(player, tile, gem_count, val)
+Adjusts gem count for a player from a tile action.
+
+world:onLoot(player, tile, gem_count)
+Triggers a loot event for a player from a tile.
+
+world:getSizeX()
+Get the world size horizontally.
+
+world:getSizeY()
+Get the world size vertically.
+
+world:getTiles()
+Returns an array of all tiles in the world.
+
+world:getTilesByActionType(actionType)
+Returns tiles with a specific action type.
+
+world:createNPC(name, x, y)
+Spawns an NPC in the world and returns its player object.
+
+world:findNPCByName(name)
+Finds an NPC by name and returns its player object.
+
+world:removeNPC(npc)
+Removes an NPC from the world.
+
+world:setWeather(weather_id)
+Permanently changes the default weather of a world.
+
+world:isGameActive()
+Returns if a game is active in the world.
+
+world:onGameWinHighestScore()
+Returns the game's highest win score.
+
+world:getID()
+Returns the world's ID.
+
+world:sendPlayerMessage(player, message)
+Sends a message to a player, can also run commands.
+
+world:setOwner(user_id)
+Sets the owner of the world by user ID, bypassing world locks.
+
+world:removeOwner()
+Removes the owner of the world, bypassing world locks.
+
+world:getWorldType()
+Returns the world type (e.g., 0 for normal, 255 for dungeon).
+
+World.new(name, sizeX, sizeY, worldType)
+Static method to create a new world object in memory. Use `world:save()` to create it on the server.
+
+World.newFromTemplate(name, templateFile)
+Static method to create a new world from a .dat template. Use `world:save()` to create it.
+
+world:save()
+Saves a world created with `World.new` or `World.newFromTemplate` to the server.
+
+world:delete()
+Deletes a world object from memory if it hasn't been saved.
+
+Tile
+tile:getTileID()
+Returns the foreground item ID of the tile.
+
+tile:getPosX()
+Returns the X coordinate of the tile.
+
+tile:getPosY()
+Returns the Y coordinate of the tile.
+
+tile:getTileForeground()
+Returns the foreground item ID of the tile.
+
+tile:getTileBackground()
+Returns the background item ID of the tile.
+
+tile:getTileData(property)
+Gets a specific data property from a tile (e.g., `TileDataProperties.TILE_DATA_TYPE_SEED_FRUITS_COUNT`).
+
+tile:setTileData(property, value)
+Sets a specific data property on a tile. Requires `world:updateTile` to show visually. Renamed from `setTileDataInt`.
+
+tile:getTileItem()
+Returns the item object associated with the tile's foreground.
+
+Item
+item:getName()
+Returns the item's name.
+
+item:getRarity()
+Returns the item's rarity.
+
+item:getActionType()
+Returns the item's action type (e.g., clothing, seed).
+
+item:getGrowTime()
+Returns the item's grow time in seconds.
+
+item:setGrowTime(seconds)
+Sets the grow time for an item globally.
+
+item:setActionType(type)
+Sets the action type for an item globally.
+
+item:setDescription(text)
+Sets the description for an item globally.
+
+item:getCategoryType()
+Returns the category type of an item (as a bitflag integer).
+
+item:getEditableType()
+Returns the editable type of an item.
+
+item:setCategoryType(value)
+Sets the category type for an item globally, using bit flags.
+
+item:setEditableType(value)
+Sets the editable type for an item globally.
+
+item:setPrice(price)
+Sets the price of the item.
+
+item:isObtainable()
+Returns true if the item is obtainable.
+
+item:getNetID()
+Returns the item's net ID (same as item ID).
+
+item:getGems(world, player)
+Returns the number of gems an item would drop. Pass `world` and `player` arguments (optional) to include buffs.
+
+item:getXP(world, player)
+Returns the amount of XP an item would give. Pass `world` and `player` arguments (optional) to include buffs.
+
+item:getClothingType()
+Returns the clothing type of an item.
+
+item:setClothingType(typeID)
+Sets the clothing type for an item globally.
+
+item:getID()
+Returns the item's ID.
+
+Inventory Item
+inventory_item:getItemID()
+From `player:getInventoryItems()`, returns the item ID.
+
+inventory_item:getItemCount()
+From `player:getInventoryItems()`, returns the item count.
+
+Drop
+drop:getItemID()
+From `world:getDroppedItems()`, returns the dropped item ID.
+
+drop:getItemCount()
+From `world:getDroppedItems()`, returns the dropped item count.
+
+drop:getPosX()
+Returns the X pixel position of the dropped item.
+
+drop:getPosY()
+Returns the Y pixel position of the dropped item.
+
+drop:getUID()
+Returns the unique ID of the dropped item.
+
+drop:getFlags()
+Returns the flags of the dropped item.
+
+Server & Global
+getItem(itemID)
+Returns the global item data object for a given item ID.
+
+getItemsCount()
+Returns the total number of items loaded in the server.
+
+getPlayerByName(name)
+Returns the player object for a given name, if they are online.
+
+getPlayer(userID)
+Returns the player object for a given user ID, if they are online.
+
+getServerCurrentEvent()
+Returns the ID of the current server-wide event.
+
+getEnumItem(enumName)
+Gets an item by its enum name (e.g., "ITEM_DIRT"). Returns an item object.
+
+reloadScripts()
+Reloads all Lua scripts.
+
+getServerName()
+Returns the server name.
+
+addWorldMenuWorld(worldID, displayName, color, priority)
+Adds a world to the main menu world list. Priority 1 is before special worlds, 0 is after.
+
+removeWorldMenuWorld(worldID)
+Removes a world from the main menu list.
+
+hideWorldMenuDefaultSpecialWorlds(hide)
+Pass `1` to hide default worlds like LOCKE, `0` to show.
+
+getServerPlayers()
+Returns a table of all online players on the server.
+
+loadDataFromServer(key)
+Loads a previously saved Lua table from the server.
+
+saveDataToServer(key, dataTable)
+Saves a Lua table to the server with a specific key.
+
+loadStringFromServer(key)
+Loads a string value from the server.
+
+saveStringToServer(key, value)
+Saves a string value to the server.
+
+getAllPlayers()
+Returns a list of all players who have ever logged in.
+
+getMaxLevel()
+Returns the maximum player level configured on the server.
+
+registerLuaEvent(eventData)
+Registers a custom server-wide event.
+
+addSidebarButton(buttonJson)
+Adds a button to the player's sidebar UI using a JSON string.
+
+addSocialPortalButton(buttonDef, callback)
+Adds a button to the social portal.
+
+getTopPlayerByBalance()
+Returns the top player by balance.
+
+getTopWorldByVisitors()
+Returns the top world by visitors.
+
+getActiveWorlds()
+Returns a table of all currently loaded (active) worlds.
+
+parseText(text)
+Converts a pipe-delimited string (e.g., "key|value") into a table. Example: `local data = parseText("name|John"); print(data["name"])`.
+
+setGemEvent(multiplier)
+Starts a server-wide gem event. A multiplier of 0 or 1 stops the event.
+
+setXPEvent(multiplier)
+Starts an XP event. A multiplier of 0 or 1 stops the event.
+
+getRequiredEvent()
+Returns the required event.
+
+isVoucher()
+Returns if the item is a voucher.
+
+getCurrentServerDailyEvent()
+Returns the current server's daily event.
+
+getTitle()
+Returns the title.
+
+getAmount()
+Returns the amount.
+
+getIOTMItem()
+Returns the IOTM item.
+
+getPrice()
+Returns the price of the item.
+
+isGrowtoken()
+Returns if the item is a Growtoken.
+
+addDailyOfferPurchased(userID, itemID)
+Adds a daily offer purchased.
+
+getCategory()
+Returns the category of the item.
+
+getRealGTItemsCount()
+Returns the real GT items count.
+
+getTexture()
+Returns the texture.
+
+getEventOffers()
+Returns the event offers.
+
+getActiveDailyOffers()
+Returns the active daily offers.
+
+onPurchaseItem(player, item, bool)
+Firing the purchase item event.
+
+getDescription()
+Returns the description.
+
+getItemsDescription()
+Returns the items description.
+
+isRPC()
+Returns if the item is an RPC.
+
+getTexturePosX()
+Returns the texture position X.
+
+getTexturePosY()
+Returns the texture position Y.
+
+onPurchaseItemReq(player, itemID)
+Firing the purchase item request event.
+
+getStoreItems()
+Returns the store items.
+
+registerLuaPlaymod(PLAYMODDATA)
+Registers the Lua playmod.
+
+getExpireTime()
+Returns the Expire Time.
+
+getNewsBanner()
+Returns the news banner.
+
+getNewsBannerDimensions()
+Returns the news banner dimensions.
+
+getTodaysDate()
+Returns the Date.
+
+getTodaysEvents()
+Returns the Event of that day.
+
+getCurrentEventDescription()
+Returns the current event's description.
+
+getCurrentDailyEventDescription()
+Returns the current daily event's description.
+
+getCurrentRoleDayDescription()
+Returns the current role day's description.
+
+getServerID()
+Returns server ID.
+
+worldExists(name)
+Checks if a world with the given name already exists on the server.
+
+OS Library
+os.execute(command)
+Executes a system command. Use with extreme caution.
+
+os.time()
+Returns the current time as a Unix timestamp.
+
+os.clock()
+Returns the CPU time used by the program in seconds.
+
+os.date()
+Formats a date and time.
+
+os.getenv(varname)
+Gets an environment variable.
+
+os.remove(filename)
+Deletes a file.
+
+os.rename(oldname, newname)
+Renames a file.
+
+os.setlocale(locale, category)
+Sets the program locale.
+
+os.exit(code)
+Exits the script immediately.
+
+Libraries
+http.get(url, headers)
+Performs an HTTP GET request. Must be wrapped in a coroutine.
+
+http.post(url, headers, postData)
+Performs an HTTP POST request. Must be wrapped in a coroutine.
+
+json.encode(dataTable)
+Encodes a Lua table into a JSON string.
+
+json.decode(jsonString)
+Decodes a JSON string into a Lua table.
+
+bit.band(x, y)
+Performs a bitwise AND operation. Used for checking flags.
+
+bit.lshift(x, n)
+Performs a left bitwise shift. Used for creating bit flags.
+
+timer.setTimeout(delay_seconds, function, ...args)
+Executes a function once after a specified delay. Additional arguments are passed to the function.
+
+timer.setInterval(interval_seconds, function)
+Executes a function repeatedly at a specified interval. Returns an ID to be used with `timer.clear`.
+
+timer.clear(id)
+Stops a timer that was created with `setInterval`.
+
+Miscellaneous
+data:[dialog_name]
+The name of the dialog, returned in the `data` table from `onPlayerDialogCallback`.
+
+data:[buttonClicked]
+The name of the button the player clicked, returned in the `data` table.
+
+data:[selection]
+The item selected by the player in an item picker, returned in the `data` table.
+
+data:[item]
+The item associated with a specific dialog action.
+
+TileDataProperties
+The name of constants for tile data properties, like `TILE_DATA_TYPE_SEED_FRUITS_COUNT`.
+
+PlayerClothes
+A table of constants for clothing slots (e.g., `PlayerClothes.HAND`, `PlayerClothes.FEET`).
+
+PlayerRoleQuestTypes
+A table of constants for role quest types (e.g., `PlayerRoleQuestTypes.Farmer`, `PlayerRoleQuestTypes.Builder`).
+
+ITEM_CATEGORY_FLAGS
+A table of bit flags for item categories (e.g., `ITEM_CATEGORY_FLAGS.UNTRADABLE`, `ITEM_CATEGORY_FLAGS.BETA`).
+
+Roles
+A table of constants for player roles (e.g., `Roles.ROLE_NONE`, `Roles.ROLE_ADMIN`, `Roles.ROLE_DEVELOPER`).
+  </template>
+
+  <script>
+    // --- Utilities ---
+    const tpl = document.getElementById('rawDocs').innerHTML.trim();
+
+    // Parse template into sections:
+    // Heuristic: a section heading is a single line that either:
+    //  - ends with no parentheses and is title-like (Dialog Syntax, Player, World, Item, Tile, Libraries, Miscellaneous, etc)
+    //  - OR looks like a function signature `onSomething(...)`
+    const lines = tpl.split(/\r?\n/);
+    const sections = [];
+    let cur = { title: 'Intro', body: [] };
+
+    function isTitleLine(l){
+      if(!l) return false;
+      // if line contains parentheses and begins with lower case word (function), treat as content
+      // Titles are short and start uppercase letter and contain letters/spaces/&.
+      if(/^[A-Za-z0-9_\- ]+$/.test(l) && /^[A-Z]/.test(l) && l.length < 40) return true;
+      return false;
+    }
+
+    for(let i=0;i<lines.length;i++){
+      const l = lines[i].trim();
+      if(isTitleLine(l)){
+        // start new section if current body not empty
+        if(cur.body.length > 0 || cur.title !== 'Intro'){
+          sections.push({...cur});
+          cur = { title: l, body: [] };
+        } else {
+          // first title: set title and continue
+          cur.title = l;
+        }
+      } else {
+        cur.body.push(lines[i]);
+      }
+    }
+    // push last
+    if(cur.body.length > 0 || cur.title) sections.push(cur);
+
+    // Render sections
+    const contentRoot = document.getElementById('contentRoot');
+    const toc = document.getElementById('toc');
+
+    sections.forEach((sec, idx)=>{
+      const id = 'sec-' + idx;
+      // Create section card
+      const secEl = document.createElement('section');
+      secEl.className = 'section';
+      secEl.id = id;
+
+      // head
+      const head = document.createElement('div');
+      head.className = 'head';
+      head.innerHTML = `
+        <div>
+          <h3>${escapeHtml(sec.title)}</h3>
+          <div class="muted" style="margin-top:6px">${escapeHtml(getPreview(sec.body))}</div>
+        </div>
+        <div class="section-actions">
+          <button class="mini-btn" data-copy-section="${id}">Copy section</button>
+          <button class="mini-btn" data-toggle="${id}">Open</button>
+        </div>
+      `;
+      secEl.appendChild(head);
+
+      // body
+      const body = document.createElement('div');
+      body.className = 'body';
+
+      // split body into paragraphs separated by blank lines, then wrap code blocks (function signatures) into pre tags
+      const paragraphs = splitParagraphs(sec.body.join('\n'));
+      paragraphs.forEach(p=>{
+        if(isMostlyCode(p)){
+          const pre = document.createElement('pre');
+          pre.innerText = p.trim();
+          // code actions (copy)
+          const actions = document.createElement('div');
+          actions.className = 'code-actions';
+          const copyBtn = document.createElement('button');
+          copyBtn.className = 'mini-btn';
+          copyBtn.innerText = 'Copy';
+          copyBtn.onclick = ()=>{ copyText(p.trim()); flash(copyBtn,'Copied') };
+          actions.appendChild(copyBtn);
+          pre.appendChild(actions);
+          body.appendChild(pre);
+        } else {
+          const pEl = document.createElement('div');
+          pEl.style.marginBottom = '8px';
+          pEl.style.color = 'var(--muted)';
+          pEl.innerText = p;
+          body.appendChild(pEl);
+        }
+      });
+
+      secEl.appendChild(body);
+      contentRoot.appendChild(secEl);
+
+      // TOC entry
+      const tbtn = document.createElement('button');
+      tbtn.innerText = sec.title;
+      tbtn.onclick = ()=>{
+        // scroll and open
+        document.querySelectorAll('.section .body').forEach(b=>b.style.display='none');
+        body.style.display = 'block';
+        document.querySelectorAll('.section .head button[data-toggle]').forEach(b=>b.innerText='Open');
+        head.querySelector('[data-toggle]').innerText = 'Close';
+        setTimeout(()=>{ secEl.scrollIntoView({behavior:'smooth', block:'start'}); }, 80);
+      };
+      toc.appendChild(tbtn);
+    });
+
+    // Hook toggles and copy-section buttons
+    document.addEventListener('click', (ev)=>{
+      const t = ev.target;
+      if(t.matches('[data-toggle]')){
+        const id = t.getAttribute('data-toggle');
+        const sec = document.getElementById(id);
+        const body = sec.querySelector('.body');
+        const isOpen = body.style.display === 'block';
+        body.style.display = isOpen ? 'none' : 'block';
+        t.innerText = isOpen ? 'Open' : 'Close';
+      }
+      if(t.matches('[data-copy-section]')){
+        const id = t.getAttribute('data-copy-section');
+        const sec = document.getElementById(id);
+        const txt = collectSectionText(sec);
+        copyText(txt);
+        flash(t,'Copied');
+      }
+    });
+
+    // Search
+    const searchInput = document.getElementById('searchInput');
+    searchInput.addEventListener('input', (e)=>{
+      const q = e.target.value.trim().toLowerCase();
+      document.querySelectorAll('.section').forEach(sec=>{
+        const title = sec.querySelector('h3').innerText.toLowerCase();
+        const body = sec.querySelector('.body').innerText.toLowerCase();
+        const match = title.includes(q) || body.includes(q);
+        sec.style.display = match ? 'block' : 'none';
+      });
+      // filter toc too
+      Array.from(toc.children).forEach(btn=>{
+        btn.style.display = btn.innerText.toLowerCase().includes(q) ? 'block' : 'none';
+      });
+    });
+
+    // Open all / collapse all
+    document.getElementById('openAll').addEventListener('click', ()=> {
+      document.querySelectorAll('.section .body').forEach(b=>b.style.display='block');
+      document.querySelectorAll('[data-toggle]').forEach(b=>b.innerText='Close');
+    });
+    document.getElementById('closeAll').addEventListener('click', ()=> {
+      document.querySelectorAll('.section .body').forEach(b=>b.style.display='none');
+      document.querySelectorAll('[data-toggle]').forEach(b=>b.innerText='Open');
+    });
+
+    // Download HTML: produce a downloadable copy of current page (optional)
+    document.getElementById('downloadAll').addEventListener('click', (e)=>{
+      e.preventDefault();
+      const blob = new Blob([document.documentElement.outerHTML], {type:'text/html'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = 'growsoft-docs.html';
+      a.click();
+      URL.revokeObjectURL(url);
+    });
+
+    // --- Helper functions ---
+    function splitParagraphs(text){
+      // split by two or more newline spaces into chunks
+      return text.split(/\n\s*\n/).map(s=>s.trim()).filter(Boolean);
+    }
+    function isMostlyCode(str){
+      // treat as code if it contains parentheses frequently or backticks or looks like function signatures
+      const codeIndicators = ['(', ')', '`', '->', ':', 'get', 'set', 'register'];
+      let score = 0;
+      codeIndicators.forEach(k=>{ if(str.includes(k)) score++; });
+      // also if lines start with lower-case followed by colon or 'on' prefix
+      if(/^(on|get|set|player|world|tile|item|inventory_|drop|os\.|timer\.)/.test(str.trim())) score++;
+      return score >= 2;
+    }
+    function getPreview(lines){
+      const text = (Array.isArray(lines) ? lines.join(' ') : lines || '').trim();
+      return text.length > 120 ? text.slice(0,120) + '...' : text;
+    }
+    function collectSectionText(sec){
+      return sec.querySelector('.head h3').innerText + '\n\n' + sec.querySelector('.body').innerText;
+    }
+    function copyText(t){
+      if(!navigator.clipboard) {
+        const ta = document.createElement('textarea'); ta.value = t; document.body.appendChild(ta);
+        ta.select(); document.execCommand('copy'); ta.remove(); return;
+      }
+      navigator.clipboard.writeText(t).catch(()=>{ /* ignore */ });
+    }
+    function flash(el, msg){
+      const original = el.innerText;
+      el.innerText = msg;
+      setTimeout(()=> el.innerText = original, 900);
+    }
+    function escapeHtml(s){
+      return (s+'').replace(/[&<>"']/g, ch => ({
+        '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+      })[ch]);
+    }
+  </script>
+</body>
+</html>
