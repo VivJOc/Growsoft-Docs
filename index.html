@@ -1,148 +1,141 @@
 <!doctype html>
-<html lang="id">
+<html lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>GrowSoft Lua Docs — Full</title>
-  <meta name="description" content="Dokumentasi GrowSoft Lua Engine — callbacks, API, dialog syntax, player/world/item APIs. Interactive docs with search and copy." />
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22><text y=%2216%22 font-size=%2216%22>📘</text></svg>">
+  <title>GrowSoft Lua Docs — Interactive</title>
+  <meta name="description" content="GrowSoft Lua Engine — interactive docs: callbacks, player/world/item APIs, dialog syntax. Click tabs to open sections; copy code with one click." />
+
+  <!-- Prism.js for syntax highlighting -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-okaidia.min.css" rel="stylesheet" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-lua.min.js"></script>
 
   <style>
-    /* Modern docs-style dark theme */
     :root{
       --bg:#0b1220;
       --panel:#0f1724;
       --muted:#9aa4b2;
       --accent:#7c3aed;
       --glass: rgba(255,255,255,0.02);
-      --surface:#0c1117;
       --card-border: rgba(255,255,255,0.035);
+      --max-width:1200px;
     }
     *{box-sizing:border-box}
-    html,body{height:100%}
     body{
       margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial;
       background:
         radial-gradient(600px 300px at 8% 8%, rgba(124,58,237,0.06), transparent 10%),
         linear-gradient(180deg,#071025 0%, var(--bg) 100%);
-      color:#e6eef8;
-      -webkit-font-smoothing:antialiased;
-      line-height:1.55;
+      color:#e6eef8; -webkit-font-smoothing:antialiased;line-height:1.55;
     }
 
-    /* Layout */
-    .wrap{display:grid;grid-template-columns: 280px 1fr; gap:28px; max-width:1200px; margin:28px auto; padding:18px}
-    header{grid-column:1/-1; display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:6px}
-    .brand{display:flex;align-items:center;gap:12px}
-    .logo{width:44px;height:44px;border-radius:10px;background:linear-gradient(135deg,var(--accent),#06b6d4);display:flex;align-items:center;justify-content:center;font-weight:700;box-shadow:0 8px 30px rgba(124,58,237,0.12)}
+    .container{
+      max-width:var(--max-width); margin:28px auto; padding:18px; display:grid;
+      grid-template-columns:260px 1fr; gap:22px;
+    }
+
+    header{grid-column:1/-1;display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+    .brand{display:flex;gap:12px;align-items:center}
+    .logo{width:48px;height:48px;border-radius:12px;background:linear-gradient(135deg,var(--accent),#06b6d4);display:flex;align-items:center;justify-content:center;font-weight:700;box-shadow:0 8px 30px rgba(124,58,237,0.12)}
     h1{font-size:18px;margin:0}
     .subtitle{color:var(--muted);font-size:13px}
 
-    /* Sidebar */
+    /* Sidebar / Tabs */
     .sidebar{
       background:linear-gradient(180deg, rgba(255,255,255,0.012), transparent);
-      border-radius:12px;padding:16px;border:1px solid var(--card-border);height:calc(100vh - 120px);position:sticky;top:20px;overflow:auto;
-      box-shadow: 0 10px 30px rgba(2,6,23,0.6);
+      border-radius:12px;padding:14px;border:1px solid var(--card-border);height:calc(100vh - 100px);position:sticky;top:20px;overflow:auto;
+      box-shadow:0 10px 30px rgba(2,6,23,0.6);
     }
     .search{display:flex;gap:8px;margin-bottom:12px}
     .search input{flex:1;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,0.04);background:transparent;color:inherit}
-    .toc{display:flex;flex-direction:column;gap:6px}
-    .toc button{background:transparent;border:none;color:var(--muted);text-align:left;padding:8px;border-radius:8px;cursor:pointer}
-    .toc button:hover{background:rgba(255,255,255,0.02);color:inherit}
+    .tabs{display:flex;flex-direction:column;gap:6px}
+    .tab-btn{
+      display:flex;align-items:center;gap:8px;padding:10px;border-radius:8px;border:none;background:transparent;color:var(--muted);text-align:left;cursor:pointer;font-weight:600;
+    }
+    .tab-btn:hover{background:rgba(255,255,255,0.02);color:inherit}
+    .tab-btn.active{background:linear-gradient(90deg,var(--accent),#06b6d4);color:white}
 
     /* Main content */
-    .main{
-      padding-right:6px;
+    .content{
+      padding:10px 8px 40px 8px; max-height:calc(100vh - 60px); overflow:auto;
     }
-    .hero{
-      background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
-      padding:16px;border-radius:12px;border:1px solid var(--card-border);
-      display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;
-    }
-    .hero .left{max-width:70%}
-    .hero .left h2{margin:0 0 6px 0}
-    .hero .left p{margin:0;color:var(--muted);font-size:13px}
-    .hero .cta{display:flex;gap:8px}
+    .controls{display:flex;gap:8px;align-items:center;margin-bottom:12px}
     .btn{padding:9px 12px;border-radius:10px;border:none;cursor:pointer;font-weight:600}
     .btn.ghost{background:transparent;border:1px solid rgba(255,255,255,0.04);color:inherit}
     .btn.primary{background:linear-gradient(90deg,var(--accent),#06b6d4);color:white;box-shadow:0 10px 30px rgba(124,58,237,0.12)}
 
-    /* Section cards */
+    /* Section / item */
     .section{
-      margin-bottom:12px;background:var(--panel);border-radius:10px;border:1px solid var(--card-border);overflow:hidden;
-      transition:all .18s ease;
+      background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+      padding:12px;border-radius:12px;border:1px solid var(--card-border);margin-bottom:12px;
     }
-    .section .head{
-      display:flex;align-items:center;justify-content:space-between;padding:14px 16px;cursor:pointer;
-    }
-    .section .head h3{margin:0;font-size:15px}
-    .section .head .muted{color:var(--muted);font-size:13px}
-    .section .body{padding:12px 16px;border-top:1px solid rgba(255,255,255,0.02);display:none;animation:fadeIn .18s ease}
-    @keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+    .section h2{margin:0 0 8px 0}
+    .item{margin-bottom:10px;padding:10px;border-radius:10px;border:1px solid rgba(255,255,255,0.02);background:rgba(0,0,0,0.06)}
+    .item .meta{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+    .desc{color:var(--muted);font-size:14px}
 
-    /* code blocks */
-    pre{background:#071023;border-left:4px solid rgba(124,58,237,0.18);padding:12px;border-radius:8px;color:#cfe9ff;white-space:pre-wrap;word-break:break-word;position:relative}
-    .code-actions{position:absolute;top:8px;right:10px;display:flex;gap:8px}
-    .mini-btn{background:rgba(255,255,255,0.06);border:none;color:inherit;padding:6px 8px;border-radius:6px;font-size:12px;cursor:pointer}
-    .mini-btn:hover{background:rgba(255,255,255,0.09)}
+    pre{position:relative;margin:0;border-radius:8px;padding:14px;overflow:auto}
+    pre code{font-size:13px;white-space:pre;}
 
-    /* copy entire section button */
-    .section-actions{display:flex;gap:8px;align-items:center}
-    .hint{color:var(--muted);font-size:13px;margin-bottom:10px}
+    .code-actions{position:absolute;top:8px;right:8px;display:flex;gap:8px}
+    .mini{background:rgba(255,255,255,0.06);border:none;color:inherit;padding:6px 8px;border-radius:6px;font-size:13px;cursor:pointer}
+    .mini:hover{background:rgba(255,255,255,0.09)}
 
-    /* responsive */
+    .section-actions{display:flex;gap:8px;align-items:center;margin-bottom:8px}
+    .muted{color:var(--muted);font-size:13px}
+
+    /* Responsive */
     @media (max-width:980px){
-      .wrap{grid-template-columns:1fr; padding:12px; gap:14px}
-      .sidebar{height:auto;position:relative}
+      .container{grid-template-columns:1fr; padding:12px}
+      .sidebar{position:relative;height:auto;order:2}
+      .content{order:1}
     }
   </style>
 </head>
 <body>
-  <div class="wrap">
+  <div class="container">
     <header>
       <div class="brand">
         <div class="logo">GT</div>
         <div>
           <h1>GrowSoft Lua Docs</h1>
-          <div class="subtitle">Complete embedded docs — callbacks, APIs, dialog syntax. Tekan judul untuk menampilkan isi.</div>
+          <div class="subtitle">Interactive docs — tabs, search, copy code only</div>
         </div>
       </div>
 
-      <div class="hero-cta">
-        <div class="hero" style="width:520px;max-width:48vw">
-          <div class="left">
-            <h2>Interactive docs</h2>
-            <p>Tekan judul topik di sidebar atau klik header topik untuk buka. Setiap potongan kode dapat disalin dengan 1 klik.</p>
-          </div>
-          <div class="cta">
-            <button class="btn ghost" id="openAll">Open all</button>
-            <button class="btn primary" id="closeAll">Collapse all</button>
-          </div>
-        </div>
+      <div style="display:flex;gap:10px;align-items:center">
+        <button class="btn ghost" id="downloadHtml">Download HTML</button>
+        <a class="btn ghost" href="https://github.com" target="_blank" rel="noopener">GitHub</a>
       </div>
     </header>
 
-    <aside class="sidebar" aria-label="Table of contents">
-      <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
-        <input id="searchInput" placeholder="Search topics / keywords..." />
+    <!-- Sidebar: tabs & search -->
+    <aside class="sidebar" aria-label="Documentation navigation">
+      <div class="search">
+        <input id="globalSearch" placeholder="Search everything..." />
       </div>
 
-      <div class="hint">Klik nama topik untuk langsung scroll & buka.</div>
-      <div class="toc" id="toc"></div>
-      <hr style="opacity:.06;margin:12px 0">
+      <div class="muted" style="margin-bottom:8px">Click a tab to open its content.</div>
+      <div class="tabs" id="tabsContainer">
+        <!-- tabs rendered with JS -->
+      </div>
+
+      <hr style="opacity:0.06;margin:12px 0">
       <div style="display:flex;gap:8px">
-        <a class="btn ghost" href="#" id="downloadAll">Download HTML</a>
-        <a class="btn ghost" href="https://github.com" target="_blank" rel="noopener">GitHub</a>
+        <button class="btn ghost" id="openAllBtn">Open all</button>
+        <button class="btn ghost" id="closeAllBtn">Collapse all</button>
       </div>
     </aside>
 
-    <main class="main" id="contentRoot">
-      <!-- Sections akan di-render lewat JS -->
+    <!-- Main content -->
+    <main class="content" id="mainContent" aria-live="polite">
+      <!-- Sections injected here -->
     </main>
   </div>
 
-  <!-- raw docs text embedded in template for safe raw contents -->
-  <template id="rawDocs">
+  <!-- Embedded raw docs (from growsoft docs.txt) -->
+  <template id="raw">
 onPlayerDialogCallback(world, player, data)
 Handles player interactions with dialogs. The `data` table contains `dialog_name` and `buttonClicked`.
 
@@ -1267,209 +1260,289 @@ A table of constants for player roles (e.g., `Roles.ROLE_NONE`, `Roles.ROLE_ADMI
   </template>
 
   <script>
-    // --- Utilities ---
-    const tpl = document.getElementById('rawDocs').innerHTML.trim();
+    // Parse template into structured sections (heuristic)
+    const raw = document.getElementById('raw').innerText;
+    const lines = raw.split(/\r?\n/);
 
-    // Parse template into sections:
-    // Heuristic: a section heading is a single line that either:
-    //  - ends with no parentheses and is title-like (Dialog Syntax, Player, World, Item, Tile, Libraries, Miscellaneous, etc)
-    //  - OR looks like a function signature `onSomething(...)`
-    const lines = tpl.split(/\r?\n/);
-    const sections = [];
-    let cur = { title: 'Intro', body: [] };
-
-    function isTitleLine(l){
-      if(!l) return false;
-      // if line contains parentheses and begins with lower case word (function), treat as content
-      // Titles are short and start uppercase letter and contain letters/spaces/&.
-      if(/^[A-Za-z0-9_\- ]+$/.test(l) && /^[A-Z]/.test(l) && l.length < 40) return true;
+    // Heuristics for section titles: lines that are short, TitleCase, and not function signatures.
+    function isTitle(line){
+      if(!line) return false;
+      if(line.length > 40) return false;
+      if(/^[A-Za-z0-9 _&]+$/.test(line) && /^[A-Z]/.test(line)) return true;
       return false;
     }
 
-    for(let i=0;i<lines.length;i++){
+    // We'll build a map: sections = [{title, items: [{code, desc}...]}]
+    const sections = [];
+    let curSection = { title: 'General', items: [] };
+
+    // Helper: determine if a line is a 'code line' (function or signature)
+    function isCodeLine(l){
+      if(!l) return false;
+      // typical patterns: starts with on..., player:..., world:..., item:get..., or contains parentheses
+      if(/^[a-z_][A-Za-z0-9_:.]*\([^\)]*\)/.test(l.trim())) return true;
+      if(/^(on|get|set|player|world|tile|item|inventory_|drop|os\.|timer\.)/.test(l.trim())) return true;
+      return false;
+    }
+
+    // Walk lines and construct items. If a code line appears, treat following non-empty lines as description until next code/title.
+    let i = 0;
+    while(i < lines.length){
       const l = lines[i].trim();
-      if(isTitleLine(l)){
-        // start new section if current body not empty
-        if(cur.body.length > 0 || cur.title !== 'Intro'){
-          sections.push({...cur});
-          cur = { title: l, body: [] };
-        } else {
-          // first title: set title and continue
-          cur.title = l;
-        }
-      } else {
-        cur.body.push(lines[i]);
+      if(isTitle(l)){
+        // new section
+        if(curSection.items.length > 0 || curSection.title !== 'General') sections.push(curSection);
+        curSection = { title: l, items: [] };
+        i++;
+        continue;
       }
+
+      if(isCodeLine(l)){
+        const code = l;
+        i++;
+        // collect description lines until we hit an empty line or next code or title
+        const descParts = [];
+        while(i < lines.length){
+          const nl = lines[i];
+          if(!nl.trim()){
+            // blank line — break paragraph
+            // but keep consuming subsequent blank lines and break now
+            i++;
+            // allow multiple blank lines but stop
+            break;
+          }
+          if(isTitle(nl.trim()) || isCodeLine(nl.trim())) break;
+          descParts.push(nl.trim());
+          i++;
+        }
+        const desc = descParts.join(' ').trim() || 'No description.';
+        curSection.items.push({ code: code.trim(), desc });
+        continue;
+      }
+
+      // Non-code, non-title lines: might be standalone paragraphs, like 'Commands' or 'Dialog Syntax' heading
+      if(l){
+        // If the next line is a code line, treat this as a heading (some headings are one word like 'Commands' followed by code)
+        if(isCodeLine(lines[i+1] ? lines[i+1].trim() : '')){
+          // treat this line as a section title if short
+          if(l.length < 40 && /^[A-Za-z0-9 _&]+$/.test(l) && /^[A-Z]/.test(l)){
+            if(curSection.items.length > 0 || curSection.title !== 'General') sections.push(curSection);
+            curSection = { title: l, items: [] };
+            i++;
+            continue;
+          }
+        }
+        // otherwise, skip or put as description for a pseudo-code item?
+        // We'll attach it as a "note" item.
+        curSection.items.push({ code: '', desc: l });
+        i++;
+        continue;
+      }
+      i++;
     }
     // push last
-    if(cur.body.length > 0 || cur.title) sections.push(cur);
+    if(curSection.items.length > 0 || curSection.title) sections.push(curSection);
 
-    // Render sections
-    const contentRoot = document.getElementById('contentRoot');
-    const toc = document.getElementById('toc');
+    // Build tabs order: prefer common names ordering
+    const preferredOrder = ["Callbacks","Dialog Syntax","Commands","Player","World","Tile","Item","Inventory Item","Drop","Server & Global","OS Library","Libraries","Miscellaneous"];
+    sections.sort((a,b)=>{
+      const ai = preferredOrder.indexOf(a.title);
+      const bi = preferredOrder.indexOf(b.title);
+      if(ai === -1 && bi === -1) return a.title.localeCompare(b.title);
+      if(ai === -1) return 1;
+      if(bi === -1) return -1;
+      return ai - bi;
+    });
 
-    sections.forEach((sec, idx)=>{
-      const id = 'sec-' + idx;
-      // Create section card
-      const secEl = document.createElement('section');
-      secEl.className = 'section';
-      secEl.id = id;
+    // Render tabs & first tab content
+    const tabsContainer = document.getElementById('tabsContainer');
+    const mainContent = document.getElementById('mainContent');
 
-      // head
-      const head = document.createElement('div');
-      head.className = 'head';
-      head.innerHTML = `
-        <div>
-          <h3>${escapeHtml(sec.title)}</h3>
-          <div class="muted" style="margin-top:6px">${escapeHtml(getPreview(sec.body))}</div>
-        </div>
-        <div class="section-actions">
-          <button class="mini-btn" data-copy-section="${id}">Copy section</button>
-          <button class="mini-btn" data-toggle="${id}">Open</button>
-        </div>
-      `;
-      secEl.appendChild(head);
+    sections.forEach((sec, idx) => {
+      const btn = document.createElement('button');
+      btn.className = 'tab-btn';
+      btn.innerText = sec.title + (sec.items.length ? ` (${sec.items.length})` : '');
+      btn.dataset.index = idx;
+      if(idx === 0) btn.classList.add('active');
+      tabsContainer.appendChild(btn);
 
-      // body
-      const body = document.createElement('div');
-      body.className = 'body';
+      btn.addEventListener('click', ()=>{
+        document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+        btn.classList.add('active');
+        renderSection(idx);
+      });
+    });
 
-      // split body into paragraphs separated by blank lines, then wrap code blocks (function signatures) into pre tags
-      const paragraphs = splitParagraphs(sec.body.join('\n'));
-      paragraphs.forEach(p=>{
-        if(isMostlyCode(p)){
+    // initial render of first section
+    if(sections.length) renderSection(0);
+    else mainContent.innerText = 'No documentation content found.';
+
+    function renderSection(index){
+      mainContent.innerHTML = '';
+      const sec = sections[index];
+      const sectionEl = document.createElement('div');
+      sectionEl.className = 'section';
+      sectionEl.innerHTML = `<h2>${escapeHtml(sec.title)}</h2><div class="muted">${sec.items.length} items</div>`;
+      // actions
+      const actions = document.createElement('div');
+      actions.className = 'section-actions';
+      const copyAllBtn = document.createElement('button'); copyAllBtn.className='mini'; copyAllBtn.innerText='Copy all codes';
+      const openAllBtn = document.createElement('button'); openAllBtn.className='mini'; openAllBtn.innerText='Open all';
+      const collapseAllBtn = document.createElement('button'); collapseAllBtn.className='mini'; collapseAllBtn.innerText='Collapse all';
+      actions.appendChild(copyAllBtn); actions.appendChild(openAllBtn); actions.appendChild(collapseAllBtn);
+      sectionEl.appendChild(actions);
+
+      // items
+      sec.items.forEach((it, idxItem) => {
+        const itemEl = document.createElement('div'); itemEl.className = 'item';
+        // If code exists
+        if(it.code){
+          const meta = document.createElement('div'); meta.className = 'meta';
+          const codeLabel = document.createElement('div'); codeLabel.style.fontWeight='700'; codeLabel.innerText = it.code;
+          const itemActions = document.createElement('div');
+          const copyBtn = document.createElement('button'); copyBtn.className='mini'; copyBtn.innerText='Copy code';
+          copyBtn.title = 'Copy code only';
+          copyBtn.addEventListener('click', ()=> {
+            copyToClipboard(it.code);
+            copyBtn.innerText = 'Copied'; setTimeout(()=> copyBtn.innerText='Copy code',700);
+          });
+          itemActions.appendChild(copyBtn);
+          meta.appendChild(codeLabel); meta.appendChild(itemActions);
+          itemEl.appendChild(meta);
+
+          // code block (Prism highlight)
           const pre = document.createElement('pre');
-          pre.innerText = p.trim();
-          // code actions (copy)
-          const actions = document.createElement('div');
-          actions.className = 'code-actions';
-          const copyBtn = document.createElement('button');
-          copyBtn.className = 'mini-btn';
-          copyBtn.innerText = 'Copy';
-          copyBtn.onclick = ()=>{ copyText(p.trim()); flash(copyBtn,'Copied') };
-          actions.appendChild(copyBtn);
-          pre.appendChild(actions);
-          body.appendChild(pre);
+          pre.innerHTML = `<code class="language-lua">${escapeHtml(it.code)}</code>`;
+          // code-actions (duplicate copy)
+          const codeActs = document.createElement('div'); codeActs.className='code-actions';
+          const copySmall = document.createElement('button'); copySmall.className='mini'; copySmall.innerText='Copy';
+          copySmall.title='Copy code only';
+          copySmall.addEventListener('click', ()=> {
+            copyToClipboard(it.code);
+            copySmall.innerText='Copied'; setTimeout(()=> copySmall.innerText='Copy',700);
+          });
+          codeActs.appendChild(copySmall);
+          pre.appendChild(codeActs);
+          itemEl.appendChild(pre);
+
+          // description below
+          const desc = document.createElement('div'); desc.className='desc';
+          desc.innerText = it.desc;
+          itemEl.appendChild(desc);
         } else {
-          const pEl = document.createElement('div');
-          pEl.style.marginBottom = '8px';
-          pEl.style.color = 'var(--muted)';
-          pEl.innerText = p;
-          body.appendChild(pEl);
+          // No code — a plain note/paragraph
+          const note = document.createElement('div'); note.className='desc';
+          note.innerText = it.desc;
+          itemEl.appendChild(note);
+        }
+
+        sectionEl.appendChild(itemEl);
+      });
+
+      mainContent.appendChild(sectionEl);
+
+      // Run Prism to highlight
+      Prism.highlightAll();
+
+      // Attach actions
+      copyAllBtn.addEventListener('click', ()=> {
+        // assemble all codes in this section separated by double newline
+        const allCodes = sec.items.filter(x=>x.code).map(x=>x.code).join('\n\n');
+        if(!allCodes) { alert('No code found to copy in this section.'); return; }
+        copyToClipboard(allCodes);
+        copyAllBtn.innerText='Copied'; setTimeout(()=> copyAllBtn.innerText='Copy all codes',800);
+      });
+      openAllBtn.addEventListener('click', ()=> {
+        // expand: visually scroll first item into view
+        const first = mainContent.querySelector('.item');
+        if(first) first.scrollIntoView({behavior:'smooth', block:'start'});
+      });
+      collapseAllBtn.addEventListener('click', ()=> {
+        window.scrollTo({top:0, behavior:'smooth'});
+      });
+    }
+
+    // Global search - filters tabs & section items
+    const globalSearch = document.getElementById('globalSearch');
+    globalSearch.addEventListener('input', (e)=>{
+      const q = e.target.value.trim().toLowerCase();
+      // Filter each section's items and hide tabs with 0 results
+      sections.forEach((sec, sidx)=>{
+        const matchCount = sec.items.reduce((acc, it)=>{
+          const hay = (it.code + ' ' + it.desc).toLowerCase();
+          return acc + (hay.includes(q) ? 1:0);
+        },0);
+        const tabBtn = document.querySelector(`.tab-btn[data-index="${sidx}"]`) || document.querySelectorAll('.tab-btn')[sidx];
+        if(tabBtn) tabBtn.style.display = matchCount ? 'flex':'none';
+        // If currently selected tab has matches, re-render it showing only matches
+        const activeBtn = document.querySelector('.tab-btn.active');
+        if(activeBtn && activeBtn.dataset.index == sidx){
+          // render a filtered view
+          renderFilteredSection(sidx, q);
         }
       });
-
-      secEl.appendChild(body);
-      contentRoot.appendChild(secEl);
-
-      // TOC entry
-      const tbtn = document.createElement('button');
-      tbtn.innerText = sec.title;
-      tbtn.onclick = ()=>{
-        // scroll and open
-        document.querySelectorAll('.section .body').forEach(b=>b.style.display='none');
-        body.style.display = 'block';
-        document.querySelectorAll('.section .head button[data-toggle]').forEach(b=>b.innerText='Open');
-        head.querySelector('[data-toggle]').innerText = 'Close';
-        setTimeout(()=>{ secEl.scrollIntoView({behavior:'smooth', block:'start'}); }, 80);
-      };
-      toc.appendChild(tbtn);
     });
 
-    // Hook toggles and copy-section buttons
-    document.addEventListener('click', (ev)=>{
-      const t = ev.target;
-      if(t.matches('[data-toggle]')){
-        const id = t.getAttribute('data-toggle');
-        const sec = document.getElementById(id);
-        const body = sec.querySelector('.body');
-        const isOpen = body.style.display === 'block';
-        body.style.display = isOpen ? 'none' : 'block';
-        t.innerText = isOpen ? 'Open' : 'Close';
-      }
-      if(t.matches('[data-copy-section]')){
-        const id = t.getAttribute('data-copy-section');
-        const sec = document.getElementById(id);
-        const txt = collectSectionText(sec);
-        copyText(txt);
-        flash(t,'Copied');
-      }
-    });
-
-    // Search
-    const searchInput = document.getElementById('searchInput');
-    searchInput.addEventListener('input', (e)=>{
-      const q = e.target.value.trim().toLowerCase();
-      document.querySelectorAll('.section').forEach(sec=>{
-        const title = sec.querySelector('h3').innerText.toLowerCase();
-        const body = sec.querySelector('.body').innerText.toLowerCase();
-        const match = title.includes(q) || body.includes(q);
-        sec.style.display = match ? 'block' : 'none';
+    function renderFilteredSection(index, q){
+      const sec = sections[index];
+      const filtered = sec.items.filter(it => (it.code + ' ' + it.desc).toLowerCase().includes(q));
+      mainContent.innerHTML = '';
+      const sectionEl = document.createElement('div'); sectionEl.className='section';
+      sectionEl.innerHTML = `<h2>${escapeHtml(sec.title)} <span style="color:var(--muted);font-size:13px">(${filtered.length} results)</span></h2>`;
+      filtered.forEach(it=>{
+        const itemEl = document.createElement('div'); itemEl.className='item';
+        if(it.code){
+          const meta = document.createElement('div'); meta.className='meta';
+          const codeLabel = document.createElement('div'); codeLabel.style.fontWeight='700'; codeLabel.innerText = it.code;
+          const itemActions = document.createElement('div');
+          const copyBtn = document.createElement('button'); copyBtn.className='mini'; copyBtn.innerText='Copy code';
+          copyBtn.addEventListener('click', ()=> { copyToClipboard(it.code); copyBtn.innerText='Copied'; setTimeout(()=> copyBtn.innerText='Copy code',700); });
+          itemActions.appendChild(copyBtn);
+          meta.appendChild(codeLabel); meta.appendChild(itemActions);
+          itemEl.appendChild(meta);
+          const pre = document.createElement('pre'); pre.innerHTML = `<code class="language-lua">${escapeHtml(it.code)}</code>`;
+          const codeActs = document.createElement('div'); codeActs.className='code-actions';
+          const copySmall = document.createElement('button'); copySmall.className='mini'; copySmall.innerText='Copy';
+          copySmall.addEventListener('click', ()=> { copyToClipboard(it.code); copySmall.innerText='Copied'; setTimeout(()=> copySmall.innerText='Copy',700); });
+          codeActs.appendChild(copySmall); pre.appendChild(codeActs); itemEl.appendChild(pre);
+          const desc = document.createElement('div'); desc.className='desc'; desc.innerText = it.desc; itemEl.appendChild(desc);
+        } else {
+          const note = document.createElement('div'); note.className='desc'; note.innerText = it.desc; itemEl.appendChild(note);
+        }
+        sectionEl.appendChild(itemEl);
       });
-      // filter toc too
-      Array.from(toc.children).forEach(btn=>{
-        btn.style.display = btn.innerText.toLowerCase().includes(q) ? 'block' : 'none';
-      });
-    });
+      mainContent.appendChild(sectionEl);
+      Prism.highlightAll();
+    }
 
-    // Open all / collapse all
-    document.getElementById('openAll').addEventListener('click', ()=> {
-      document.querySelectorAll('.section .body').forEach(b=>b.style.display='block');
-      document.querySelectorAll('[data-toggle]').forEach(b=>b.innerText='Close');
-    });
-    document.getElementById('closeAll').addEventListener('click', ()=> {
-      document.querySelectorAll('.section .body').forEach(b=>b.style.display='none');
-      document.querySelectorAll('[data-toggle]').forEach(b=>b.innerText='Open');
-    });
-
-    // Download HTML: produce a downloadable copy of current page (optional)
-    document.getElementById('downloadAll').addEventListener('click', (e)=>{
-      e.preventDefault();
+    // Download HTML current document
+    document.getElementById('downloadHtml').addEventListener('click', ()=>{
       const blob = new Blob([document.documentElement.outerHTML], {type:'text/html'});
       const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url; a.download = 'growsoft-docs.html';
-      a.click();
+      const a = document.createElement('a'); a.href = url; a.download = 'growsoft-docs.html'; a.click();
       URL.revokeObjectURL(url);
     });
 
-    // --- Helper functions ---
-    function splitParagraphs(text){
-      // split by two or more newline spaces into chunks
-      return text.split(/\n\s*\n/).map(s=>s.trim()).filter(Boolean);
-    }
-    function isMostlyCode(str){
-      // treat as code if it contains parentheses frequently or backticks or looks like function signatures
-      const codeIndicators = ['(', ')', '`', '->', ':', 'get', 'set', 'register'];
-      let score = 0;
-      codeIndicators.forEach(k=>{ if(str.includes(k)) score++; });
-      // also if lines start with lower-case followed by colon or 'on' prefix
-      if(/^(on|get|set|player|world|tile|item|inventory_|drop|os\.|timer\.)/.test(str.trim())) score++;
-      return score >= 2;
-    }
-    function getPreview(lines){
-      const text = (Array.isArray(lines) ? lines.join(' ') : lines || '').trim();
-      return text.length > 120 ? text.slice(0,120) + '...' : text;
-    }
-    function collectSectionText(sec){
-      return sec.querySelector('.head h3').innerText + '\n\n' + sec.querySelector('.body').innerText;
-    }
-    function copyText(t){
-      if(!navigator.clipboard) {
-        const ta = document.createElement('textarea'); ta.value = t; document.body.appendChild(ta);
-        ta.select(); document.execCommand('copy'); ta.remove(); return;
+    // Open all / Collapse all
+    document.getElementById('openAllBtn').addEventListener('click', ()=>{
+      // scroll to top and expand: smooth scroll and open first
+      window.scrollTo({top:0,behavior:'smooth'});
+    });
+    document.getElementById('closeAllBtn').addEventListener('click', ()=>{
+      window.scrollTo({top:0,behavior:'smooth'});
+    });
+
+    // Utility: copy to clipboard
+    function copyToClipboard(text){
+      if(!navigator.clipboard){
+        const ta = document.createElement('textarea'); ta.value=text; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); ta.remove(); return;
       }
-      navigator.clipboard.writeText(t).catch(()=>{ /* ignore */ });
+      navigator.clipboard.writeText(text).catch(()=>{ /* ignore */ });
     }
-    function flash(el, msg){
-      const original = el.innerText;
-      el.innerText = msg;
-      setTimeout(()=> el.innerText = original, 900);
-    }
+
+    // Helper: escape html
     function escapeHtml(s){
-      return (s+'').replace(/[&<>"']/g, ch => ({
-        '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
-      })[ch]);
+      return (s+'').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[ch]);
     }
   </script>
 </body>
